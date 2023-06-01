@@ -23,7 +23,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 
 def generate_keys(symmetric_key_path, public_key_path, secret_key_path):
     # 1.1. Сгеренировать ключ для симметричного алгоритма Camellia.
-    symmetric_key = os.urandom(128)
+    symmetric_key = os.urandom(16)
     # 1.2. Сгенерировать ключи для ассиметричного алгоритма RSA.
     private_key = rsa.generate_private_key(
         public_exponent=65537,
