@@ -39,15 +39,15 @@ def encrypt_file(data_path, private_key_path, symmetric_key_path, encrypted_data
     # 2.2. Зашифровать текст симметричным алгоритмом Camellia и сохранить по указанному пути.
     with open(data_path, 'rb') as f:
         data = f.read()
-    padder = padding.ANSIX923(len(symmetric_key) * 8).padder()
-    padded_data = padder.update(data) + padder.finalize()
     iv = os.urandom(16)
     cipher = Cipher(algorithms.Camellia(symmetric_key), modes.CBC(iv))
     encryptor = cipher.encryptor()
-    cipher_text = encryptor.update(padded_data) + encryptor.finalize()
+    padder = padding.PKCS7(128).padder()
+    padded_data = padder.update(data) + padder.finalize()
+    encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
     with open(encrypted_data_path, 'wb') as f:
         f.write(iv)
-        f.write(cipher_text)
+        f.write(encrypted_data)
 
 
 if __name__ == '__main__':
