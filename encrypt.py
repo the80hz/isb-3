@@ -1,9 +1,9 @@
 """
 2. Шифрование данных гибридной системой
 Входные параметры:
-1) путь к шифруемому текстовому файлу (очевидно, что файл должен быть достаточно объемным);
+1) путь к шифруемому текстовому файлу;
 2) путь к закрытому ключу ассиметричного алгоритма;
-3) путь к зашированному ключу симметричного алгоритма;
+3) путь к зашифрованному ключу симметричного алгоритма;
 4) путь, по которому сохранить зашифрованный текстовый файл;
 
 2.1. Расшифровать симметричный ключ.
@@ -21,12 +21,22 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
-def encrypt_file(data_path, private_key_path, symmetric_key_path, encrypted_data_path):
+def encrypt_file(data_path: str, private_key_path: str, symmetric_key_path: str, encrypted_data_path: str) -> None:
+    """
+    2. Шифрование данных гибридной системой
+    :param data_path:           путь к шифруемому текстовому файлу;
+    :param private_key_path:    путь к закрытому ключу ассиметричного алгоритма;
+    :param symmetric_key_path:  путь к зашифрованному ключу симметричного алгоритма;
+    :param encrypted_data_path: путь, по которому сохранить зашифрованный текстовый файл;
+    :return:
+    """
     # 2.1. Расшифровать симметричный ключ.
     with open(symmetric_key_path, 'rb') as f:
         symmetric_key = f.read()
+
     with open(private_key_path, 'rb') as f:
         private_key_bytes = f.read()
+
     private_key = serialization.load_pem_private_key(private_key_bytes, password=None)
     symmetric_key = private_key.decrypt(
         symmetric_key,
@@ -36,15 +46,18 @@ def encrypt_file(data_path, private_key_path, symmetric_key_path, encrypted_data
             label=None
         )
     )
+
     # 2.2. Зашифровать текст симметричным алгоритмом Camellia и сохранить по указанному пути.
     with open(data_path, 'rb') as f:
         data = f.read()
+
     iv = os.urandom(16)
     cipher = Cipher(algorithms.Camellia(symmetric_key), modes.CBC(iv))
     encryptor = cipher.encryptor()
     padder = padding.PKCS7(128).padder()
     padded_data = padder.update(data) + padder.finalize()
     encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+
     with open(encrypted_data_path, 'wb') as f:
         f.write(iv)
         f.write(encrypted_data)
