@@ -9,17 +9,17 @@
 3.1. Расшифровать симметричный ключ.
 3.2. Расшифровать текст симметричным алгоритмом и сохранить по указанному пути.
 """
+
 # Path: decrypt.py
 
 import os
-import cryptography
 import argparse
-import json
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
 from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
-def decrypt_data(encrypted_data_path, secret_key_path, symmetric_key_path, decrypted_data_path):
+def decrypt_file(encrypted_data_path, secret_key_path, symmetric_key_path, decrypted_data_path):
     # 3.1. Расшифровать симметричный ключ.
     with open(symmetric_key_path, 'rb') as f:
         symmetric_key = f.read()
@@ -52,4 +52,4 @@ if __name__ == '__main__':
     parser.add_argument('--decrypted_data_path', type=str, help='Path to decrypted data')
     args = parser.parse_args()
 
-    decrypt_data(args.encrypted_data_path, args.secret_key_path, args.symmetric_key_path, args.decrypted_data_path)
+    decrypt_file(args.encrypted_data_path, args.secret_key_path, args.symmetric_key_path, args.decrypted_data_path)

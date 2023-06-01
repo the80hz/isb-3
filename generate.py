@@ -13,13 +13,12 @@
 
 # Path: generate.py
 
-import os
-import cryptography
 import argparse
-import json
-from cryptography.hazmat.primitives import serialization
+import os
+
+from cryptography.hazmat.primitives import serialization, asymmetric, hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
 def generate_keys(symmetric_key_path, public_key_path, secret_key_path):
@@ -42,8 +41,16 @@ def generate_keys(symmetric_key_path, public_key_path, secret_key_path):
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
     # 1.4. Зашифровать ключ симметричного шифрования открытым ключом и сохранить по указанному пути.
+    encrypted_symmetric_key = public_key.encrypt(
+        symmetric_key,
+        asymmetric.padding.OAEP(
+            mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
     with open(symmetric_key_path, 'wb') as f:
-        f.write(symmetric_key)
+        f.write(encrypted_symmetric_key)
     with open(public_key_path, 'wb') as f:
         f.write(public_key_bytes)
     with open(secret_key_path, 'wb') as f:
@@ -53,10 +60,13 @@ def generate_keys(symmetric_key_path, public_key_path, secret_key_path):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Generate keys for hybrid cryptosystem')
-    parser.add_argument('--symmetric_key_path', type=str, default='out/keys/symmetric_key.txt', help='Path to save symmetric key')
-    parser.add_argument('--public_key_path', type=str, default='out/keys/public_key.pem', help='Path to save public key')
-    parser.add_argument('--secret_key_path', type=str, default='out/keys/secret_key.pem', help='Path to save secret key')
+    parser = argparse.ArgumentParser(description='Generate keys for hybrid crypto-system')
+    parser.add_argument('--symmetric_key_path', type=str,
+                        default='out/keys/symmetric_key.txt', help='Path to save symmetric key')
+    parser.add_argument('--public_key_path', type=str,
+                        default='out/keys/public_key.pem', help='Path to save public key')
+    parser.add_argument('--secret_key_path', type=str,
+                        default='out/keys/secret_key.pem', help='Path to save secret key')
     args = parser.parse_args()
 
     generate_keys(args.symmetric_key_path, args.public_key_path, args.secret_key_path)

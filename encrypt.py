@@ -9,27 +9,28 @@
 2.1. Расшифровать симметричный ключ.
 2.2. Зашифровать текст симметричным алгоритмом и сохранить по указанному пути.
 """
-# Path: crypto.py
 
-import os
-import cryptography
+# Path: encrypt.py
+
 import argparse
-import json
+import os
+
+from cryptography.hazmat.primitives import serialization, asymmetric, hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import serialization, hashes
 
 
-def encrypt_data(data_path, public_key_path, symmetric_key_path, encrypted_data_path):
+def encrypt_file(data_path, private_key_path, symmetric_key_path, encrypted_data_path):
     # 2.1. Расшифровать симметричный ключ.
     with open(symmetric_key_path, 'rb') as f:
         symmetric_key = f.read()
-    with open(public_key_path, 'rb') as f:
-        public_key_bytes = f.read()
-    public_key = serialization.load_pem_public_key(public_key_bytes)
-    symmetric_key = public_key.encrypt(
+    with open(private_key_path, 'rb') as f:
+        private_key_bytes = f.read()
+    private_key = serialization.load_pem_private_key(private_key_bytes, password=None)
+    symmetric_key = private_key.decrypt(
         symmetric_key,
-        padding=serialization.OAEP(
-            mgf=serialization.MGF1(algorithm=hashes.SHA256()),
+        padding=asymmetric.padding.OAEP(
+            mgf=asymmetric.padding.MGF1(algorithm=hashes.SHA256()),
             algorithm=hashes.SHA256(),
             label=None
         )
@@ -46,10 +47,14 @@ def encrypt_data(data_path, public_key_path, symmetric_key_path, encrypted_data_
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Encrypt data')
-    parser.add_argument('--data_path', type=str, help='Path to data file')
-    parser.add_argument('--public_key_path', type=str, help='Path to public key')
-    parser.add_argument('--symmetric_key_path', type=str, help='Path to symmetric key')
-    parser.add_argument('--encrypted_data_path', type=str, help='Path to encrypted data')
+    parser.add_argument('--data_path', type=str,
+                        default='file.txt', help='Path to data file')
+    parser.add_argument('--public_key_path', type=str,
+                        default='out/keys/public_key.pem', help='Path to public key')
+    parser.add_argument('--symmetric_key_path', type=str,
+                        default='out/keys/symmetric_key.txt', help='Path to symmetric key')
+    parser.add_argument('--encrypted_data_path', type=str,
+                        default='out/encrypted_file.txt', help='Path to encrypted data file')
     args = parser.parse_args()
 
-    encrypt_data(args.data_path, args.public_key_path, args.symmetric_key_path, args.encrypted_data_path)
+    encrypt_file(args.data_path, args.public_key_path, args.symmetric_key_path, args.encrypted_data_path)
