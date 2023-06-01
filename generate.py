@@ -21,7 +21,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 
-def generate_keys(symmetric_key_path, public_key_path, secret_key_path):
+def generate_keys(symmetric_key_path, public_key_path, private_key_path):
     # 1.1. Сгеренировать ключ для симметричного алгоритма Camellia.
     symmetric_key = os.urandom(16)
     # 1.2. Сгенерировать ключи для ассиметричного алгоритма RSA.
@@ -53,7 +53,7 @@ def generate_keys(symmetric_key_path, public_key_path, secret_key_path):
         f.write(encrypted_symmetric_key)
     with open(public_key_path, 'wb') as f:
         f.write(public_key_bytes)
-    with open(secret_key_path, 'wb') as f:
+    with open(private_key_path, 'wb') as f:
         f.write(private_key_bytes)
 
     return symmetric_key, public_key, private_key
@@ -65,8 +65,8 @@ if __name__ == '__main__':
                         default='out/keys/symmetric_key.txt', help='Path to save symmetric key')
     parser.add_argument('--public_key_path', type=str,
                         default='out/keys/public_key.pem', help='Path to save public key')
-    parser.add_argument('--secret_key_path', type=str,
-                        default='out/keys/secret_key.pem', help='Path to save secret key')
+    parser.add_argument('--private_key_path', type=str,
+                        default='out/keys/private_key.pem', help='Path to save private key')
     args = parser.parse_args()
 
-    generate_keys(args.symmetric_key_path, args.public_key_path, args.secret_key_path)
+    generate_keys(args.symmetric_key_path, args.public_key_path, args.private_key_path)

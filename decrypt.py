@@ -1,9 +1,9 @@
 """
 3. Дешифрование данных гибридной системой
-Входные парметры:
+Входные параметры:
 1) путь к зашифрованному текстовому файлу;
 2) путь к закрытому ключу ассиметричного алгоритма;
-3) путь к зашированному ключу симметричного алгоритма;
+3) путь к зашифрованному ключу симметричного алгоритма;
 4) путь, по которому сохранить расшифрованный текстовый файл.
 
 3.1. Расшифровать симметричный ключ.
@@ -12,16 +12,11 @@
 
 # Path: decrypt.py
 
-import os
 import argparse
 
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization, asymmetric, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import serialization, asymmetric, hashes
 
 
 def decrypt_file(encrypted_data_path, private_key_path, symmetric_key_path, decrypted_data_path):
@@ -56,7 +51,7 @@ if __name__ == '__main__':
     parser.add_argument('--encrypted_data_path', type=str,
                         default='out/encrypted_file.txt', help='Path to encrypted data file')
     parser.add_argument('--private_key_path', type=str,
-                        default='out/keys/secret_key.pem', help='Path to public key')
+                        default='out/keys/private_key.pem', help='Path to public key')
     parser.add_argument('--symmetric_key_path', type=str,
                         default='out/keys/symmetric_key.txt', help='Path to symmetric key')
     parser.add_argument('--decrypted_data_path', type=str,

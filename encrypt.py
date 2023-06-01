@@ -55,7 +55,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_path', type=str,
                         default='file.txt', help='Path to data file')
     parser.add_argument('--private_key_path', type=str,
-                        default='out/keys/secret_key.pem', help='Path to public key')
+                        default='out/keys/private_key.pem', help='Path to public key')
     parser.add_argument('--symmetric_key_path', type=str,
                         default='out/keys/symmetric_key.txt', help='Path to symmetric key')
     parser.add_argument('--encrypted_data_path', type=str,
