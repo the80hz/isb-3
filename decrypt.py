@@ -29,11 +29,19 @@ def decrypt_file(encrypted_data_path: str, private_key_path: str,
     :param decrypted_data_path:     путь, по которому сохранить расшифрованный текстовый файл.
     :return:
     """
-    with open(symmetric_key_path, 'rb') as f:
-        symmetric_key = f.read()
+    try:
+        with open(symmetric_key_path, 'rb') as f:
+            symmetric_key = f.read()
+    except FileNotFoundError:
+        print('Symmetric key file not found')
+        return
 
-    with open(private_key_path, 'rb') as f:
-        private_key_bytes = f.read()
+    try:
+        with open(private_key_path, 'rb') as f:
+            private_key_bytes = f.read()
+    except FileNotFoundError:
+        print('Private key file not found')
+        return
 
     private_key = serialization.load_pem_private_key(private_key_bytes, password=None)
     symmetric_key = private_key.decrypt(
@@ -45,8 +53,12 @@ def decrypt_file(encrypted_data_path: str, private_key_path: str,
         )
     )
 
-    with open(encrypted_data_path, 'rb') as f:
-        encrypted_data = f.read()
+    try:
+        with open(encrypted_data_path, 'rb') as f:
+            encrypted_data = f.read()
+    except FileNotFoundError:
+        print('Encrypted data file not found')
+        return
 
     iv = encrypted_data[:16]
     encrypted_data = encrypted_data[16:]
@@ -54,8 +66,11 @@ def decrypt_file(encrypted_data_path: str, private_key_path: str,
     decryptor = cipher.decryptor()
     decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
 
-    with open(decrypted_data_path, 'wb') as f:
-        f.write(decrypted_data)
+    try:
+        with open(decrypted_data_path, 'wb') as f:
+            f.write(decrypted_data)
+    except FileNotFoundError:
+        print('Error writing decrypted data')
 
 
 if __name__ == '__main__':

@@ -16,16 +16,29 @@ if __name__ == '__main__':
         settings = json.load(f)
 
     if not os.path.exists(settings['initial_file']):
-        with open(settings['initial_file'], 'w') as f:
-            f.write('')
+        try:
+            with open(settings['initial_file'], 'w') as f:
+                f.write('')
+        except FileNotFoundError:
+            print('Something went wrong')
     if not os.path.exists(settings['output_folder']):
-        os.makedirs(settings['output_folder'])
+        try:
+            os.makedirs(settings['output_folder'])
+        except FileNotFoundError:
+            print('Something went wrong')
+
     if not os.path.exists(settings['output_keys_folder']):
-        os.makedirs(settings['output_keys_folder'])
+        try:
+            os.makedirs(settings['output_keys_folder'])
+        except FileNotFoundError:
+            print('Something went wrong')
 
     if os.path.getsize(settings['initial_file']) == 0:
-        with open(settings['initial_file'], 'w', encoding='utf-8') as f:
-            f.write(f'{lyrics[0] * 4}{lyrics[1] * 4}{lyrics[0] * 2}{lyrics[1] * 8}{lyrics[0] * 2}{lyrics[1] * 4}')
+        try:
+            with open(settings['initial_file'], 'w', encoding='utf-8') as f:
+                f.write(f'{lyrics[0] * 4}{lyrics[1] * 4}{lyrics[0] * 2}{lyrics[1] * 8}{lyrics[0] * 2}{lyrics[1] * 4}')
+        except FileNotFoundError:
+            print('Something went wrong')
 
     generate_keys(settings['symmetric_key'], settings['public_key'],
                   settings['private_key'])

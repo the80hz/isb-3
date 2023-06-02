@@ -55,12 +55,27 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
         )
     )
 
-    with open(symmetric_key_path, 'wb') as f:
-        f.write(encrypted_symmetric_key)
-    with open(public_key_path, 'wb') as f:
-        f.write(public_key_bytes)
-    with open(private_key_path, 'wb') as f:
-        f.write(private_key_bytes)
+    try:
+        with open(symmetric_key_path, 'wb') as f:
+            f.write(encrypted_symmetric_key)
+    except FileNotFoundError:
+        os.makedirs(os.path.dirname(symmetric_key_path))
+        with open(symmetric_key_path, 'wb') as f:
+            f.write(encrypted_symmetric_key)
+    try:
+        with open(public_key_path, 'wb') as f:
+            f.write(public_key_bytes)
+    except FileNotFoundError:
+        os.makedirs(os.path.dirname(public_key_path))
+        with open(public_key_path, 'wb') as f:
+            f.write(public_key_bytes)
+    try:
+        with open(private_key_path, 'wb') as f:
+            f.write(private_key_bytes)
+    except FileNotFoundError:
+        os.makedirs(os.path.dirname(private_key_path))
+        with open(private_key_path, 'wb') as f:
+            f.write(private_key_bytes)
 
 
 if __name__ == '__main__':

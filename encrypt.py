@@ -29,11 +29,19 @@ def encrypt_file(data_path: str, private_key_path: str, symmetric_key_path: str,
     :param encrypted_data_path: путь, по которому сохранить зашифрованный текстовый файл;
     :return:
     """
-    with open(symmetric_key_path, 'rb') as f:
-        symmetric_key = f.read()
+    try:
+        with open(symmetric_key_path, 'rb') as f:
+            symmetric_key = f.read()
+    except FileNotFoundError:
+        print('Symmetric key not found')
+        return
 
-    with open(private_key_path, 'rb') as f:
-        private_key_bytes = f.read()
+    try:
+        with open(private_key_path, 'rb') as f:
+            private_key_bytes = f.read()
+    except FileNotFoundError:
+        print('Private key not found')
+        return
 
     private_key = serialization.load_pem_private_key(private_key_bytes, password=None)
     symmetric_key = private_key.decrypt(
@@ -45,8 +53,12 @@ def encrypt_file(data_path: str, private_key_path: str, symmetric_key_path: str,
         )
     )
 
-    with open(data_path, 'rb') as f:
-        data = f.read()
+    try:
+        with open(data_path, 'rb') as f:
+            data = f.read()
+    except FileNotFoundError:
+        print('Data file not found')
+        return
 
     iv = os.urandom(16)
     cipher = Cipher(algorithms.Camellia(symmetric_key), modes.CBC(iv))
@@ -55,9 +67,15 @@ def encrypt_file(data_path: str, private_key_path: str, symmetric_key_path: str,
     padded_data = padder.update(data) + padder.finalize()
     encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
 
-    with open(encrypted_data_path, 'wb') as f:
-        f.write(iv)
-        f.write(encrypted_data)
+    try:
+        with open(encrypted_data_path, 'wb') as f:
+            f.write(iv)
+            f.write(encrypted_data)
+    except FileNotFoundError:
+        os.makedirs(os.path.dirname(encrypted_data_path))
+        with open(encrypted_data_path, 'wb') as f:
+            f.write(iv)
+            f.write(encrypted_data)
 
 
 if __name__ == '__main__':
