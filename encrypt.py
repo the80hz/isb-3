@@ -1,23 +1,13 @@
-"""
-2. Шифрование данных гибридной системой
-Входные параметры:
-1) путь к шифруемому текстовому файлу;
-2) путь к закрытому ключу ассиметричного алгоритма;
-3) путь к зашифрованному ключу симметричного алгоритма;
-4) путь, по которому сохранить зашифрованный текстовый файл;
-
-2.1. Расшифровать симметричный ключ.
-2.2. Зашифровать текст симметричным алгоритмом и сохранить по указанному пути.
-"""
-
-
 import argparse
 import os
+import logging
 
 from cryptography.hazmat.primitives import serialization, asymmetric, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+logging.basicConfig(level=logging.INFO)
 
 
 def encrypt_file(data_path: str, private_key_path: str, symmetric_key_path: str, encrypted_data_path: str) -> None:
@@ -29,18 +19,21 @@ def encrypt_file(data_path: str, private_key_path: str, symmetric_key_path: str,
     :param encrypted_data_path: путь, по которому сохранить зашифрованный текстовый файл;
     :return:
     """
+    logging.info('Starting encryption process...')
     try:
         with open(symmetric_key_path, 'rb') as f:
             symmetric_key = f.read()
+        logging.info('Symmetric key loaded.')
     except FileNotFoundError:
-        print('Symmetric key not found')
+        logging.error('Symmetric key not found')
         return
 
     try:
         with open(private_key_path, 'rb') as f:
             private_key_bytes = f.read()
+        logging.info('Private key loaded.')
     except FileNotFoundError:
-        print('Private key not found')
+        logging.error('Private key not found')
         return
 
     private_key = serialization.load_pem_private_key(private_key_bytes, password=None)
@@ -52,12 +45,14 @@ def encrypt_file(data_path: str, private_key_path: str, symmetric_key_path: str,
             label=None
         )
     )
+    logging.info('Symmetric key decrypted.')
 
     try:
         with open(data_path, 'rb') as f:
             data = f.read()
+        logging.info('Data file loaded.')
     except FileNotFoundError:
-        print('Data file not found')
+        logging.error('Data file not found')
         return
 
     iv = os.urandom(16)
@@ -66,16 +61,19 @@ def encrypt_file(data_path: str, private_key_path: str, symmetric_key_path: str,
     padder = padding.PKCS7(128).padder()
     padded_data = padder.update(data) + padder.finalize()
     encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+    logging.info('Data encrypted.')
 
     try:
         with open(encrypted_data_path, 'wb') as f:
             f.write(iv)
             f.write(encrypted_data)
+        logging.info('Encrypted data saved.')
     except FileNotFoundError:
         os.makedirs(os.path.dirname(encrypted_data_path))
         with open(encrypted_data_path, 'wb') as f:
             f.write(iv)
             f.write(encrypted_data)
+        logging.info('Encrypted data saved.')
 
 
 if __name__ == '__main__':

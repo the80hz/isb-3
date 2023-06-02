@@ -1,21 +1,13 @@
-"""
-3. Дешифрование данных гибридной системой
-Входные параметры:
-1) путь к зашифрованному текстовому файлу;
-2) путь к закрытому ключу ассиметричного алгоритма;
-3) путь к зашифрованному ключу симметричного алгоритма;
-4) путь, по которому сохранить расшифрованный текстовый файл.
-
-3.1. Расшифровать симметричный ключ.
-3.2. Расшифровать текст симметричным алгоритмом и сохранить по указанному пути.
-"""
-
-
 import argparse
+import logging
+import os
 
 from cryptography.hazmat.primitives import serialization, asymmetric, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+# Настраиваем базовые параметры логирования
+logging.basicConfig(level=logging.INFO)
 
 
 def decrypt_file(encrypted_data_path: str, private_key_path: str,
@@ -29,18 +21,21 @@ def decrypt_file(encrypted_data_path: str, private_key_path: str,
     :param decrypted_data_path:     путь, по которому сохранить расшифрованный текстовый файл.
     :return:
     """
+    logging.info('Starting decryption process...')
     try:
         with open(symmetric_key_path, 'rb') as f:
             symmetric_key = f.read()
+        logging.info('Symmetric key loaded.')
     except FileNotFoundError:
-        print('Symmetric key file not found')
+        logging.error('Symmetric key file not found')
         return
 
     try:
         with open(private_key_path, 'rb') as f:
             private_key_bytes = f.read()
+        logging.info('Private key loaded.')
     except FileNotFoundError:
-        print('Private key file not found')
+        logging.error('Private key file not found')
         return
 
     private_key = serialization.load_pem_private_key(private_key_bytes, password=None)
@@ -52,12 +47,14 @@ def decrypt_file(encrypted_data_path: str, private_key_path: str,
             label=None
         )
     )
+    logging.info('Symmetric key decrypted.')
 
     try:
         with open(encrypted_data_path, 'rb') as f:
             encrypted_data = f.read()
+        logging.info('Encrypted data file loaded.')
     except FileNotFoundError:
-        print('Encrypted data file not found')
+        logging.error('Encrypted data file not found')
         return
 
     iv = encrypted_data[:16]
@@ -65,12 +62,17 @@ def decrypt_file(encrypted_data_path: str, private_key_path: str,
     cipher = Cipher(algorithms.Camellia(symmetric_key), modes.CBC(iv))
     decryptor = cipher.decryptor()
     decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
+    logging.info('Data decrypted.')
 
     try:
         with open(decrypted_data_path, 'wb') as f:
             f.write(decrypted_data)
+        logging.info('Decrypted data saved.')
     except FileNotFoundError:
-        print('Error writing decrypted data')
+        os.makedirs(os.path.dirname(decrypted_data_path))
+        with open(decrypted_data_path, 'wb') as f:
+            f.write(decrypted_data)
+        logging.info('Decrypted data saved.')
 
 
 if __name__ == '__main__':

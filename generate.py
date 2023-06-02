@@ -1,23 +1,12 @@
-"""
-1. Генерация ключей гибридной системы
-Входные параметры:
-1) путь, по которому сериализовать зашифрованный симметричный ключ;
-2) путь, по которому сериализовать открытый ключ;
-3) путь, по которому сериазизовать закрытый ключ.
-
-1.1. Сгеренировать ключ для симметричного алгоритма Camellia.
-1.2. Сгенерировать ключи для ассиметричного алгоритма RSA.
-1.3. Сериализовать ассиметричные ключи.
-1.4. Зашифровать ключ симметричного шифрования открытым ключом и сохранить по указанному пути.
-"""
-
-
 import argparse
 import os
+import logging
 
 from cryptography.hazmat.primitives import serialization, asymmetric, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import rsa
+
+logging.basicConfig(level=logging.INFO)
 
 
 def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_path: str):
@@ -28,13 +17,17 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
     :param private_key_path:    путь, по которому сериазизовать закрытый ключ.
     :return:
     """
+    logging.info('Generating keys...')
+
     symmetric_key = os.urandom(16)
+    logging.info('Symmetric key generated.')
 
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048
     )
     public_key = private_key.public_key()
+    logging.info('Asymmetric keys generated.')
 
     private_key_bytes = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
@@ -45,6 +38,7 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
+    logging.info('Asymmetric keys serialized.')
 
     encrypted_symmetric_key = public_key.encrypt(
         symmetric_key,
@@ -54,6 +48,7 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
             label=None
         )
     )
+    logging.info('Symmetric key encrypted.')
 
     try:
         with open(symmetric_key_path, 'wb') as f:
@@ -62,6 +57,8 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
         os.makedirs(os.path.dirname(symmetric_key_path))
         with open(symmetric_key_path, 'wb') as f:
             f.write(encrypted_symmetric_key)
+    logging.info('Encrypted symmetric key saved.')
+
     try:
         with open(public_key_path, 'wb') as f:
             f.write(public_key_bytes)
@@ -69,6 +66,8 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
         os.makedirs(os.path.dirname(public_key_path))
         with open(public_key_path, 'wb') as f:
             f.write(public_key_bytes)
+    logging.info('Public key saved.')
+
     try:
         with open(private_key_path, 'wb') as f:
             f.write(private_key_bytes)
@@ -76,6 +75,7 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
         os.makedirs(os.path.dirname(private_key_path))
         with open(private_key_path, 'wb') as f:
             f.write(private_key_bytes)
+    logging.info('Private key saved.')
 
 
 if __name__ == '__main__':
