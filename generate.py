@@ -11,7 +11,6 @@
 1.4. Зашифровать ключ симметричного шифрования открытым ключом и сохранить по указанному пути.
 """
 
-# Path: generate.py
 
 import argparse
 import os
@@ -29,17 +28,14 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
     :param private_key_path:    путь, по которому сериазизовать закрытый ключ.
     :return:
     """
-    # 1.1. Сгеренировать ключ для симметричного алгоритма Camellia.
     symmetric_key = os.urandom(16)
 
-    # 1.2. Сгенерировать ключи для ассиметричного алгоритма RSA.
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048
     )
     public_key = private_key.public_key()
 
-    # 1.3. Сериализовать ассиметричные ключи.
     private_key_bytes = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
@@ -50,7 +46,6 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
 
-    # 1.4. Зашифровать ключ симметричного шифрования открытым ключом и сохранить по указанному пути.
     encrypted_symmetric_key = public_key.encrypt(
         symmetric_key,
         asymmetric.padding.OAEP(

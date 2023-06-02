@@ -10,7 +10,6 @@
 3.2. Расшифровать текст симметричным алгоритмом и сохранить по указанному пути.
 """
 
-# Path: decrypt.py
 
 import argparse
 
@@ -30,7 +29,6 @@ def decrypt_file(encrypted_data_path: str, private_key_path: str,
     :param decrypted_data_path:     путь, по которому сохранить расшифрованный текстовый файл.
     :return:
     """
-    # 3.1. Расшифровать симметричный ключ.
     with open(symmetric_key_path, 'rb') as f:
         symmetric_key = f.read()
 
@@ -47,7 +45,6 @@ def decrypt_file(encrypted_data_path: str, private_key_path: str,
         )
     )
 
-    # 3.2. Расшифровать текст симметричным алгоритмом и сохранить по указанному пути.
     with open(encrypted_data_path, 'rb') as f:
         encrypted_data = f.read()
 

@@ -10,7 +10,6 @@
 2.2. Зашифровать текст симметричным алгоритмом и сохранить по указанному пути.
 """
 
-# Path: encrypt.py
 
 import argparse
 import os
@@ -30,7 +29,6 @@ def encrypt_file(data_path: str, private_key_path: str, symmetric_key_path: str,
     :param encrypted_data_path: путь, по которому сохранить зашифрованный текстовый файл;
     :return:
     """
-    # 2.1. Расшифровать симметричный ключ.
     with open(symmetric_key_path, 'rb') as f:
         symmetric_key = f.read()
 
@@ -47,7 +45,6 @@ def encrypt_file(data_path: str, private_key_path: str, symmetric_key_path: str,
         )
     )
 
-    # 2.2. Зашифровать текст симметричным алгоритмом Camellia и сохранить по указанному пути.
     with open(data_path, 'rb') as f:
         data = f.read()
 
