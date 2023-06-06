@@ -1,3 +1,4 @@
+import logging
 import os
 import json
 import argparse
@@ -5,10 +6,7 @@ import argparse
 from generate import generate_keys
 from encrypt import encrypt_file
 from decrypt import decrypt_file
-import settings
 
-
-lyrics = ['О, горячий суп наварили!\nО, великий суп наварили!\n', 'Ешь суп,\nГорячий суп!\n']
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Encrypt and decrypt file using hybrid crypto-system')
@@ -25,9 +23,9 @@ if __name__ == '__main__':
     try:
         with open(args.settings, 'r') as f:
             settings = json.load(f)
-    except Exception as ex:
-        print(ex)
-
+    except FileNotFoundError:
+        logging.error('Error while reading settings file.')
+        exit()
     if args.generate:
         generate_keys(settings['symmetric_key'], settings['public_key'],
                       settings['private_key'])
